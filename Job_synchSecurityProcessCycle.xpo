@@ -1,0 +1,92 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: synchSecurityProcessCycle unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #synchSecurityProcessCycle
+    #Public void synchSecurityProcessCycle()
+    #{
+    #    /*
+    #    1)  Copy this piece of code and create a new method under AOT >> Forms >> SysSecRolesEditTasks >> methods ; Now past the copied method
+    #    2)    Open  AOT\Forms\SysSecRolesEditTasks\Methods\init and past the follwing line just before the declaration of args() [this would be most likely line number 11]
+    #    element.synchSecurityProcessCycle(); //newly added line of code
+    #    args = this.args();//existing line of code
+    #    3) You need to make sure that on which application layer (SIV, VAR, CUS tec.) your customized security object are created. Accordingly please change line number 23 of code
+    #    4)    Test it; after testing is done. You can fix labels and hard coded text for method which you used in step#1. I haven’t supplied labels just to avoid providing label files.
+    #    */
+    #
+    #
+    #    UtilElements    UtilElements;
+    #    SecurityTask    tblSecurityTask;
+    #    TreeNode        TreeNode;
+    #    TreeNode        newDutiesNode;
+    #    UtilElementName nameOfProcessCycle;
+    #    #AOT
+    #    #Properties
+    #
+    #    void synchProcessCycle()
+    #    {
+    #        while select tblSecurityTask
+    #        where tblSecurityTask.Type == SecurityTaskType::Duty
+    #            && tblSecurityTask.IsEnabled == NoYes::Yes
+    #        exists join UtilElements
+    #            where tblSecurityTask.AotName == UtilElements.name
+    #                /*
+    #                ToDo: change here the layer on whcih you docustomization of secuity objects. Please watch nex line of code.
+    #                */
+    #                && UtilElements.utilLevel == UtilEntryLevel::cus
+    #                    && UtilElements.recordType == UtilElementType::SecDuty
+    #        {
+    #            newDutiesNode = TreeNode.AOTfindChild('Duties').AOTfindChild(tblSecurityTask.AotName);
+    #            if(!newDutiesNode)
+    #            {
+    #                newDutiesNode = TreeNode.AOTfindChild('Duties').AOTadd(tblSecurityTask.AotName);
+    #                newDutiesNode.AOTsetProperty(#PropertyStructName,tblSecurityTask.AotName);
+    #                newDutiesNode.AOTcompile();
+    #                newDutiesNode.AOTsave();
+    #                TreeNode.AOTsave();
+    #            }
+    #        }
+    #    }
+    #
+    #    void CreateProcessCycle()
+    #    {
+    #        treeNode = TreeNode::findNode(#SecProcessCyclesPath);
+    #        treeNode.AOTadd(nameOfProcessCycle);
+    #        treeNode.AOTcompile();
+    #        treeNode.AOTsave();
+    #        treeNode = TreeNode::findNode(#SecProcessCyclesPath+'\\'+nameOfProcessCycle);
+    #        treeNode.AOTsetProperty(#PropertyLabel,'Customized process cycle.');
+    #        treeNode.AOTsetProperty(#PropertyDescription,'Customized security process cycle.');
+    #        treeNode.AOTcompile();
+    #        treeNode.AOTsave();
+    #    }
+    #
+    #    nameOfProcessCycle = 'NameOfMyProcessCyclev01';
+    #
+    #    treeNode = TreeNode::findNode(#SecProcessCyclesPath+'\\'+nameOfProcessCycle);
+    #
+    #
+    #    if(treeNode)
+    #    {
+    #       synchProcessCycle();
+    #    }
+    #    else
+    #    {
+    #        CreateProcessCycle();
+    #        synchProcessCycle();
+    #    }
+    #
+    #    Box::info('System is ready for modification of Duties and privileges. Please do not try anything on Standard AX security roles. If so is required, duplicate the security role and perform your changes on duplicated role.');
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{9E6664D4-3C68-410D-9FE9-57F9303A4F9C}
+  ENDPROPERTIES
+  
+
+***Element: END
